@@ -1,4 +1,6 @@
 const Card = require("../models/card");
+const NotFoundError = require('../error/NotFoundError');
+
 
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
@@ -13,12 +15,18 @@ module.exports.createCard = (req, res, next) => {
 
 module.exports.getCards = (req, res) => {
   Card.find({})
+  .orFail(() => {
+    next(new NotFoundError('Запрашиваемая карточка не найдена'));
+  })
     .then((card) => res.status(200).send(card))
     .catch(() => res.status(500).send({ message: "Ошибка" }));
 };
 
 module.exports.deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
+  .orFail(() => {
+    next(new NotFoundError('Запрашиваемая карточка не найдена'));
+  })
     .then((card) => res.status(200).send(card))
     .catch(() => res.status(500).send({ message: "Ошибка" }));
 };
@@ -29,6 +37,9 @@ module.exports.likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true }
   )
+  .orFail(() => {
+    next(new NotFoundError('Запрашиваемая карточка не найдена'));
+  })
     .then((card) => res.status(200).send(card))
     .catch(() => res.status(500).send({ message: "Ошибка" }));
 };
@@ -39,6 +50,9 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true }
   )
+  .orFail(() => {
+    next(new NotFoundError('Запрашиваемая карточка не найдена'));
+  })
     .then((card) => res.status(200).send(card))
     .catch(() => res.status(500).send({ message: "Ошибка" }));
 };
