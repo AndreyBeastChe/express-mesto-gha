@@ -1,5 +1,7 @@
 const User = require("../models/user");
 const NotFoundError = require('../error/NotFoundError');
+const BadRequestError = require('../error/BadRequestError');
+
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
