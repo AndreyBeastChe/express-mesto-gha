@@ -19,7 +19,7 @@ module.exports.createCard = (req, res, next) => {
 module.exports.getCards = (req, res) => {
   Card.find({})
     .orFail(() => {
-      next(new NotFoundError("Запрашиваемая карточка не найдена"));
+      res.status(404).next(new NotFoundError("Запрашиваемая карточка не найдена"));
     })
     .then((card) => res.status(200).send(card))
     .catch(() => res.status(500).send({ message: "Ошибка" }));
@@ -28,7 +28,7 @@ module.exports.getCards = (req, res) => {
 module.exports.deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail(() => {
-      next(new NotFoundError("Запрашиваемая карточка не найдена"));
+      res.status(404).next(new NotFoundError("Запрашиваемая карточка не найдена"));
     })
     .then((card) => res.status(200).send(card))
     .catch(() => res.status(500).send({ message: "Ошибка" }));
@@ -41,7 +41,7 @@ module.exports.likeCard = (req, res) => {
     { new: true }
   )
     .orFail(() => {
-      next(new NotFoundError("Запрашиваемая карточка не найдена"));
+      res.status(404).next(new NotFoundError("Запрашиваемая карточка не найдена"));
     })
     .then((card) => res.status(200).send(card))
     .catch(() => res.status(500).send({ message: "Ошибка" }));
@@ -54,7 +54,7 @@ module.exports.dislikeCard = (req, res) => {
     { new: true }
   )
     .orFail(() => {
-      next(new NotFoundError("Запрашиваемая карточка не найдена"));
+      res.status(404).next(new NotFoundError("Запрашиваемая карточка не найдена"));
     })
     .then((card) => res.status(200).send(card))
     .catch(() => res.status(500).send({ message: "Ошибка" }));
