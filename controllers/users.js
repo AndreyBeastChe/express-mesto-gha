@@ -24,9 +24,7 @@ module.exports.getUsers = (req, res) => {
 
 module.exports.getUsersById = (req, res) => {
   User.findById(req.params.userId)
-    .orFail(() => {
-      res.status(404).next(new NotFoundError("Запрашиваемый пользователь не найден"));
-    })
+  .orFail(new NotFoundError("Запрашиваемый пользователь не найден"))
     .then((user) => res.status(200).send(user))
     .catch((err) => { if (err.name === "CastError") {
       return res.status(400).send({ message: "Данные некоррктные" });
@@ -44,7 +42,7 @@ module.exports.updateUser = (req, res) => {
       res.status(404).next(new NotFoundError("Запрашиваемый пользователь не найден"));
     })
     .then((user) => res.status(200).send(user))
-    .catch((err) => {
+    .catch(() => {
       res.status(400).send({ message: "Ошибка обновления пользователя" });
     });
 };
