@@ -1,10 +1,10 @@
 const User = require("../models/user");
-const NotFoundError = require("../error/NotFoundError");
+// const NotFoundError = require("../error/NotFoundError");
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res.status(400).send({ message: "Ошибка валидации" });
@@ -13,25 +13,26 @@ module.exports.createUser = (req, res) => {
     });
 };
 
-module.exports.getUsers = (req, res, next) => {
+module.exports.getUsers = (req, res) => {
   User.find({})
-    .orFail(() => {
-     next(new NotFoundError("Запрашиваемый пользователь не найден"));
-    })
     .then((user) => res.status(200).send(user))
     .catch(() => res.status(500).send({ message: "Ошибка" }));
 };
 
 module.exports.getUsersById = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail(() => {
-      next(new NotFoundError("Запрашиваемый пользователь не найден"));
-    })
-    .then((user) => res.status(200).send(user))
-    .catch((err) => { if (err.name === "CastError") {
-      return res.status(400).send({ message: "Данные некоррктные" });
-    } res.status(500).send({ message: "Ошибка" });
-  });
+    .then((user) => {
+      if(!user){
+        res.status(404).send({ message: "Запрашиваемый пользователь не найден" })
+        return
+      }
+      res.send({ data: user })})
+      .catch((err) => {
+        if (err.name === "CastError") {
+          return res.status(400).send({ message: "Ошибка данных" });
+        }
+        res.status(500).send({ message: "Ошибка" });
+      });
 };
 
 module.exports.updateUser = (req, res) => {
@@ -40,9 +41,9 @@ module.exports.updateUser = (req, res) => {
     { name: req.body.name, about: req.body.about },
     { new: true }
   )
-    .orFail(() => {
-      next(new NotFoundError("Запрашиваемый пользователь не найден"));
-    })
+    // .orFail(() => {
+    //   next(new NotFoundError("Запрашиваемый пользователь не найден"));
+    // })
     .then((user) => res.status(200).send(user))
     .catch(() => {
       res.status(400).send({ message: "Ошибка обновления пользователя" });
@@ -52,9 +53,9 @@ module.exports.updateUser = (req, res) => {
 module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
-    .orFail(() => {
-    next(new NotFoundError("Запрашиваемый пользователь не найден"));
-    })
+    // .orFail(() => {
+    // next(new NotFoundError("Запрашиваемый пользователь не найден"));
+    // })
     .then((user) => res.send({ data: user }))
     .catch(() => res.status(500).send({ message: "Ошибка" }));
 };
