@@ -17,7 +17,7 @@ mongoose.connect("mongodb://localhost:27017/mestodb", {
 
 app.use((req, res, next) => {
   req.user = {
-    _id: "62ae2fbf946b38d36a2533c0", // вставьте сюда _id созданного в предыдущем пункте пользователя
+    _id: "62b0f718065c46680eedc315", // вставьте сюда _id созданного в предыдущем пункте пользователя
   };
 
   next();
@@ -25,6 +25,7 @@ app.use((req, res, next) => {
 
 app.use("/users", require("./routes/users"));
 app.use("/cards", require("./routes/cards"));
+app.use('*', (req, res) => { res.status(404).send({ message: 'Несуществующий адрес' }); });
 
 app.listen(PORT, () => {
   console.log("App listening on port ", PORT);

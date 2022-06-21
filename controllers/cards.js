@@ -1,5 +1,4 @@
 const Card = require("../models/card");
-const NotFoundError = require("../error/NotFoundError");
 
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
@@ -17,18 +16,12 @@ module.exports.createCard = (req, res, next) => {
 
 module.exports.getCards = (req, res) => {
   Card.find({})
-    .orFail(() => {
-      res.status(404).next(new NotFoundError("Запрашиваемая карточка не найдена"));
-    })
     .then((card) => res.status(200).send(card))
     .catch(() => res.status(500).send({ message: "Ошибка" }));
 };
 
 module.exports.deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .orFail(() => {
-      res.status(404).next(new NotFoundError("Запрашиваемая карточка не найдена"));
-    })
     .then((card) => {
       if(!card){
         res.status(404).send({ message: "Запрашиваемая карточка не найдена" })
@@ -49,10 +42,12 @@ module.exports.likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true }
   )
-    .orFail(() => {
-      res.status(404).next(new NotFoundError("Запрашиваемая карточка не найдена"));
-    })
-    .then((card) => res.status(200).send(card))
+    .then((card) => {
+      if(!card){
+        res.status(404).send({ message: "Запрашиваемая карточка не найдена" })
+        return
+      }
+      res.status(200).send(card)})
     .catch((err) => {
       if (err.name === "CastError") {
         return res.status(400).send({ message: "Ошибка данных" });
