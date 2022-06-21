@@ -41,21 +41,18 @@ module.exports.updateUser = (req, res) => {
     { name: req.body.name, about: req.body.about },
     { new: true }
   )
-    // .orFail(() => {
-    //   next(new NotFoundError("Запрашиваемый пользователь не найден"));
-    // })
     .then((user) => res.status(200).send(user))
-    .catch(() => {
-      res.status(400).send({ message: "Ошибка обновления пользователя" });
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        return res.status(400).send({ message: "Ошибка валидации" });
+      }
+      res.status(500).send({ message: "Ошибка" });
     });
 };
 
 module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
-    // .orFail(() => {
-    // next(new NotFoundError("Запрашиваемый пользователь не найден"));
-    // })
     .then((user) => res.send({ data: user }))
     .catch(() => res.status(500).send({ message: "Ошибка" }));
 };
