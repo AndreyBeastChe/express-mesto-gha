@@ -13,18 +13,20 @@ module.exports.createUser = (req, res) => {
     });
 };
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .orFail(() => {
-      res.status(404).next(new NotFoundError("Запрашиваемый пользователь не найден"));
+     next(new NotFoundError("Запрашиваемый пользователь не найден"));
     })
     .then((user) => res.status(200).send(user))
     .catch(() => res.status(500).send({ message: "Ошибка" }));
 };
 
-module.exports.getUsersById = (req, res) => {
+module.exports.getUsersById = (req, res, next) => {
   User.findById(req.params.userId)
-  .orFail(new NotFoundError("Запрашиваемый пользователь не найден"))
+    .orFail(() => {
+      next(new NotFoundError("Запрашиваемый пользователь не найден"));
+    })
     .then((user) => res.status(200).send(user))
     .catch((err) => { if (err.name === "CastError") {
       return res.status(400).send({ message: "Данные некоррктные" });
@@ -39,7 +41,7 @@ module.exports.updateUser = (req, res) => {
     { new: true }
   )
     .orFail(() => {
-      res.status(404).next(new NotFoundError("Запрашиваемый пользователь не найден"));
+      next(new NotFoundError("Запрашиваемый пользователь не найден"));
     })
     .then((user) => res.status(200).send(user))
     .catch(() => {
@@ -47,11 +49,11 @@ module.exports.updateUser = (req, res) => {
     });
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
     .orFail(() => {
-      res.status(404).next(new NotFoundError("Запрашиваемый пользователь не найден"));
+    next(new NotFoundError("Запрашиваемый пользователь не найден"));
     })
     .then((user) => res.send({ data: user }))
     .catch(() => res.status(500).send({ message: "Ошибка" }));
