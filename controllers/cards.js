@@ -23,17 +23,18 @@ module.exports.getCards = (req, res) => {
 module.exports.deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
-      if(!card){
-        res.status(404).send({ message: "Запрашиваемая карточка не найдена" })
-        return
+      if (!card) {
+        res.status(404).send({ message: "Запрашиваемая карточка не найдена" });
+        return;
       }
-      res.status(200).send(card)})
-      .catch((err) => {
-        if (err.name === "CastError") {
-          return res.status(400).send({ message: "Ошибка данных" });
-        }
-        res.status(500).send({ message: "Ошибка" });
-      });
+      res.status(200).send(card);
+    })
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return res.status(400).send({ message: "Ошибка данных" });
+      }
+      res.status(500).send({ message: "Ошибка" });
+    });
 };
 
 module.exports.likeCard = (req, res) => {
@@ -43,11 +44,12 @@ module.exports.likeCard = (req, res) => {
     { new: true }
   )
     .then((card) => {
-      if(!card){
-        res.status(404).send({ message: "Запрашиваемая карточка не найдена" })
-        return
+      if (!card) {
+        res.status(404).send({ message: "Запрашиваемая карточка не найдена" });
+        return;
       }
-      res.status(200).send(card)})
+      res.status(200).send(card);
+    })
     .catch((err) => {
       if (err.name === "CastError") {
         return res.status(400).send({ message: "Ошибка данных" });
@@ -63,18 +65,16 @@ module.exports.dislikeCard = (req, res) => {
     { new: true }
   )
     .then((card) => {
-      if(!card){
-        res.status(404).send({ message: "Запрашиваемая карточка не найдена" })
-        return
+      if (!card) {
+        res.status(404).send({ message: "Запрашиваемая карточка не найдена" });
+        return;
       }
-      res.status(200).send(card)})
-      .catch((err) => {
-        if (err.name === "CastError") {
-          return res.status(400).send({ message: "Ошибка данных" });
-        }
-        res.status(500).send({ message: "Ошибка" });
-      });
+      res.status(200).send(card);
+    })
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return res.status(400).send({ message: "Ошибка данных" });
+      }
+      res.status(500).send({ message: "Ошибка" });
+    });
 };
-
-
-

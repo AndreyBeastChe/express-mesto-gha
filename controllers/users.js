@@ -42,7 +42,7 @@ module.exports.updateUser = (req, res) => {
   User.findByIdAndUpdate(
     req.user._id,
     { name, about },
-    { new: true }
+    { new: true, runValidators: true }
   )
     .then((user) => res.status(200).send(user))
     .catch((err) => {
@@ -55,7 +55,11 @@ module.exports.updateUser = (req, res) => {
 
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
+  User.findByIdAndUpdate(
+    req.user._id,
+    { avatar },
+    { new: true, runValidators: true }
+  )
     .then((user) => res.send({ data: user }))
     .catch(() => res.status(500).send({ message: "Ошибка" }));
 };
