@@ -32,6 +32,9 @@ module.exports.deleteCardById = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Ошибка данных' });
       }
+      if (err.name === 'Forbidden') {
+        return res.status(403).send({ message: 'Можно удалять только свою карточку' });
+      }
       return res.status(500).send({ message: 'Ошибка' });
     });
 };

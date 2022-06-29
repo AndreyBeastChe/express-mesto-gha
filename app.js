@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { celebrate, Joi } = require('celebrate');
 const { login, createUser } = require('./controllers/users');
 
 // Слушаем 3000 порт
@@ -16,14 +17,32 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
+const validate = celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+    name: Joi.string().min(2),
+    about: Joi.string().min(2),
+    avatar: Joi.string().min(2),
+  }),
+});
+
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signup', validate, createUser);
 
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Несуществующий адрес' });
+});
+
+app.use((err, req, res, next) => {
+  if (err.statusCode) {
+    return res.status(err.statusCode).send({ message: err.message });
+  }
+
+  res.status(500).send({ message: 'Что-то пошло не так' });
 });
 
 app.listen(PORT, () => {
