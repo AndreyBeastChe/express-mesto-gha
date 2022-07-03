@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { celebrate, Joi } = require('celebrate');
-const { login, createUser } = require('./controllers/users');
+const { login, createUser, errors } = require('./controllers/users');
 
 // Слушаем 3000 порт
 const { PORT = 3000 } = process.env;
@@ -20,10 +20,10 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 const validate = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required(),
-    name: Joi.string().min(2),
-    about: Joi.string().min(2),
-    avatar: Joi.string().min(2),
+    password: Joi.string().required().min(8),
+    name: Joi.string().required().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().min(2).max(30),
   }),
 });
 
@@ -37,6 +37,7 @@ app.use('*', (req, res) => {
   res.status(404).send({ message: 'Несуществующий адрес' });
 });
 
+app.use(errors());
 app.use((err, req, res, next) => {
   if (err.statusCode) {
     return res.status(err.statusCode).send({ message: err.message });
