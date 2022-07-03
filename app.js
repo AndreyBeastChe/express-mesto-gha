@@ -1,8 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { celebrate, Joi } = require('celebrate');
-const { login, createUser, errors } = require('./controllers/users');
+const { celebrate, Joi, errors } = require('celebrate');
+const { login, createUser } = require('./controllers/users');
 
 // Слушаем 3000 порт
 const { PORT = 3000 } = process.env;
@@ -38,6 +38,7 @@ app.use('*', (req, res) => {
 });
 
 app.use(errors());
+
 app.use((err, req, res, next) => {
   if (err.statusCode) {
     return res.status(err.statusCode).send({ message: err.message });
