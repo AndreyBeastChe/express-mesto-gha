@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const { isEmail } = require('validator');
 
+const reg = /http(s?):\/\/(www\.)?[0-9a-zA-Z-]+\.[a-zA-Z]+([0-9a-zA-Z-._~:?#[\]@!$&'()*+,;=]+)/;
+
 const userSchema = new mongoose.Schema({
   name: {
     default: 'Жак-Ив Кусто',
@@ -14,7 +16,14 @@ const userSchema = new mongoose.Schema({
     minlength: 2,
     maxlength: 30,
   },
-  avatar: { default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png', type: String },
+  avatar: {
+    default:
+      'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    type: String,
+    validate: {
+      validator: (value) => reg.test(value),
+    },
+  },
 
   email: {
     type: String,
