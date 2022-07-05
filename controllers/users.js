@@ -2,12 +2,19 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
+const ConflictError = require('../errors/ConflictError');
+const ForbiddenError = require('../errors/ForbiddenError');
+
+
+const MONGO_DUPLICATE_ERROR_CODE = 11000;
 
 const SECRET_KEY = 'secret';
 
 //validator.isEmail('foo@bar.com');
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { name, about, avatar } = req.body;
   // хешируем пароль
   bcrypt
@@ -21,39 +28,39 @@ module.exports.createUser = (req, res) => {
     }))
     .then((user) => res.status(201).send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Ошибка валидации' });
+      if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
+        next(new ConflictError('Такой пользователь уже существует'));
       }
-      return res.status(500).send({ message: 'Ошибка' });
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
+      }
     });
 };
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((user) => res.status(200).send(user))
-    .catch(() => res.status(500).send({ message: 'Ошибка' }));
+    .catch((err) => next(err));
 };
 
-module.exports.getUsersById = (req, res) => {
+module.exports.getUsersById = (req, res, next) => {
   User.findById(req.params.userId)
+    .orFail(new NotFoundError('Нет пользователя с таким id'))
     .then((user) => {
-      if (!user) {
-        res
-          .status(404)
-          .send({ message: 'Запрашиваемый пользователь не найден' });
-        return;
-      }
       res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Ошибка данных' });
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
       }
-      return res.status(500).send({ message: 'Ошибка' });
     });
 };
 
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -63,13 +70,14 @@ module.exports.updateUser = (req, res) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Ошибка валидации' });
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
       }
-      return res.status(500).send({ message: 'Ошибка' });
     });
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -77,17 +85,15 @@ module.exports.updateAvatar = (req, res) => {
     { new: true, runValidators: true },
   )
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Ошибка' }));
+    .catch((err) => next(err));
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findOne({ email }).select('+password')
     .then((foundUser) => {
       if (!foundUser) {
-        const err = new Error('Неправильный емейл или пароль');
-        err.statusCode = 403;
-        throw err;
+        next(new ForbiddenError('Неправильный емейл или пароль'));
       }
 
       return Promise.all([
@@ -97,9 +103,7 @@ module.exports.login = (req, res) => {
     })
     .then(([isPasswordCorrect]) => {
       if (!isPasswordCorrect) {
-        const err = new Error('Неправильный емейл или пароль');
-        err.statusCode = 403;
-        throw err;
+        next(new ForbiddenError('Неправильный емейл или пароль'));
       }
     })
     .then((user) => {
@@ -108,74 +112,3 @@ module.exports.login = (req, res) => {
       });
     });
 };
-
-// const login = (req, res) => {
-//   const { email, password } = req.body;
-//   return userSchema.findUserByCredentials(email, password)
-//     .then((user) => {
-//       res.send({
-//         token: jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' }),
-//       });
-//     })
-//     .catch((err) => {
-//       res
-//         .status(401)
-//         .send({ message: err.message });
-//     });
-// };
-
-
-// userSchema.statics.findUserByCredentials = function (email, password) {
-//   return this.findOne({ email }).select('+password')
-//     .then((user) => {
-//       if (!user) {
-//         return Promise.reject(new Error('Неправильные почта или пароль'));
-//       }
-//       return bcrypt.compare(password, user.password)
-//         .then((matched) => {
-//           if (!matched) {
-//             return Promise.reject(new Error('Неправильные почта или пароль'));
-//           }
-//           return user;
-//         });
-//     });
-// };
-
-
-
-
-
-
-
-// if (!email || !password) {
-//   const error = new Error('Не передан емейл или пароль');
-//   error.statusCode = 400;
-//   throw error;
-// }
-
-// Admin
-//   .findOne({ email })
-//   .then((foundUser) => {
-//       if (!foundUser) {
-//           const err = new Error('Неправильный емейл или пароль');
-//           err.statusCode = 403;
-//           throw err;
-//       }
-
-//       return Promise.all([
-//           foundUser,
-//           bcrypt.compare(password, foundUser.password)
-//       ]);
-//   })
-//   .then(([user, isPasswordCorrect]) => {
-//       if (!isPasswordCorrect) {
-//           const err = new Error('Неправильный емейл или пароль');
-//           err.statusCode = 403;
-//           throw err;
-//       }
-
-//       return generateToken({ email: user.email, type: 'admin' });
-//   })
-//   .then((token) => {
-//       res.send({ token });
-//   });
