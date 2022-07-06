@@ -1,18 +1,19 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/user');
+const UnAuthorizedError = require('../errors/UnauthorizedError');
 
 const SECRET_KEY = 'secret';
 
-const throwUnauthorizedError = () => {
-  const error = new Error('Авторизуйтесь для доступа');
-  error.statusCode = 401;
-  throw error;
-};
+// const throwUnauthorizedError = () => {
+//   const error = new Error('Авторизуйтесь для доступа');
+//   error.statusCode = 401;
+//   throw error;
+// };
 
 const isAuthorized = (req, res, next) => {
   const auth = req.headers.authorization;
   if (!auth) {
-    throwUnauthorizedError();
+    next(new UnAuthorizedError('Необходима авторизация'));
   }
 
   const token = auth.replace('Bearer ', '');
@@ -23,14 +24,14 @@ const isAuthorized = (req, res, next) => {
     User.findOne({ email: payload.email })
       .then((user) => {
         if (!user) {
-          throwUnauthorizedError();
+          next(new UnAuthorizedError('Необходима авторизация'));
         }
 
         req.user = payload;
         next();
       });
   } catch (err) {
-    throwUnauthorizedError();
+    next(new UnAuthorizedError('Необходима авторизация'));
   }
 };
 

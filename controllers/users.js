@@ -1,4 +1,3 @@
-//const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
@@ -7,12 +6,9 @@ const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const ForbiddenError = require('../errors/ForbiddenError');
 
-
 const MONGO_DUPLICATE_ERROR_CODE = 11000;
 
 const SECRET_KEY = 'secret';
-
-//validator.isEmail('foo@bar.com');
 
 module.exports.createUser = (req, res, next) => {
   const { name, about, avatar } = req.body;
@@ -26,7 +22,13 @@ module.exports.createUser = (req, res, next) => {
       email: req.body.email,
       password: hash,
     }))
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(201).send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+      _id: user._id,
+    }))
     .catch((err) => {
       if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
         next(new ConflictError('Такой пользователь уже существует'));
