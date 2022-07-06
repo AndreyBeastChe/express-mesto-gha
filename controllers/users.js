@@ -92,23 +92,20 @@ module.exports.updateAvatar = (req, res, next) => {
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  return User.findOne({ email }).select('+password')
-    .then((foundUser) => {
-      if (!foundUser) {
+  User.findOne({ email }).select('+password')
+    .then((user) => {
+      if (!user) {
         next(new ForbiddenError('Неправильный емейл или пароль'));
       }
-
       return Promise.all([
-        foundUser,
-        bcrypt.compare(password, foundUser.password),
+        user,
+        bcrypt.compare(password, user.password),
       ]);
     })
-    .then(([isPasswordCorrect]) => {
+    .then(([user, isPasswordCorrect]) => {
       if (!isPasswordCorrect) {
         next(new ForbiddenError('Неправильный емейл или пароль'));
       }
-    })
-    .then((user) => {
       res.send({
         token: jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' }),
       });
