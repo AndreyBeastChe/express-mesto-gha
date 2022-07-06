@@ -25,13 +25,15 @@ module.exports.getCards = (req, res, next) => {
 module.exports.deleteCardById = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail(new NotFoundError('Запрашиаемая карточка не найдена'))
-    .then((card) => res.status(200).send(card))
+    .then((card) => {
+      if (card.owner.toString() !== req.user._id) {
+        next(new ForbiddenError('Можно удалять только свою карточку данныхе'));
+      }
+      res.status(200).send(card);
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Ошибка данныхе'));
-      }
-      if (err.name === 'Forbidden') {
-        next(new ForbiddenError('Можно удалять только свою карточку данныхе'));
       } else {
         next(err);
       }
