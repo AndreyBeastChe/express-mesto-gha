@@ -4,7 +4,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
-const ForbiddenError = require('../errors/ForbiddenError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const MONGO_DUPLICATE_ERROR_CODE = 11000;
 
@@ -112,7 +112,7 @@ module.exports.login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        next(new ForbiddenError('Неправильный емейл или пароль'));
+        next(new UnauthorizedError('Неправильный емейл или пароль'));
       }
       return Promise.all([
         user,
@@ -121,7 +121,7 @@ module.exports.login = (req, res, next) => {
     })
     .then(([user, isPasswordCorrect]) => {
       if (!isPasswordCorrect) {
-        next(new ForbiddenError('Неправильный емейл или пароль'));
+        next(new UnauthorizedError('Неправильный емейл или пароль'));
       }
       res.send({
         token: jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' }),
