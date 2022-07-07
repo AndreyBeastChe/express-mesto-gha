@@ -64,6 +64,9 @@ module.exports.getUsersById = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(new NotFoundError('Нет пользователя с таким id'))
     .then((user) => {
+      if (!user) {
+        next(new NotFoundError('Нет пользователя с таким id'));
+      }
       res.send({ data: user });
     })
     .catch((err) => {
