@@ -8,6 +8,7 @@ const {
   getUsersById,
   updateUser,
   updateAvatar,
+  getCurrentUser,
 } = require('../controllers/users');
 
 const validateUpdate = celebrate({
@@ -28,5 +29,6 @@ router.get('/:userId', getUsersById);
 
 router.patch('/me', validateUpdate, updateUser);
 router.patch('/me/avatar', validateAvatar, updateAvatar);
+router.get('/me', getCurrentUser);
 
 module.exports = router;

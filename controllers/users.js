@@ -111,3 +111,14 @@ module.exports.login = (req, res, next) => {
       });
     });
 };
+
+module.exports.getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        next(new NotFoundError('Нет пользователя с таким id'));
+      }
+      res.status(200).send({ data: user });
+    })
+    .catch((err) => next(err));
+};
