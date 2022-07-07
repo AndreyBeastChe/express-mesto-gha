@@ -26,7 +26,7 @@ const validateAvatar = celebrate({
 
 const validateId = celebrate({
   params: Joi.object().keys({
-    _id: Joi.string().hex().length(24),
+    userId: Joi.string().length(24),
   }),
 });
 

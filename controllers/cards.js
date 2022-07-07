@@ -5,9 +5,7 @@ const BadRequestError = require('../errors/BadRequestError');
 
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
-  console.log(req.user);
   const owner = req.user._id;
-  console.log(owner);
   Card.create({ name, link, owner })
     .then((card) => res.status(200).send(card))
     .catch((err) => {
