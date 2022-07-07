@@ -11,19 +11,19 @@ module.exports = (req, res, next) => {
   }
 
   const token = auth.replace('Bearer ', '');
-
   try {
-    const payload = jwt.verify(token, SECRET_KEY);
+    const payload = jwt.verify(token, SECRET_KEY, { expiresIn: '7d' });
 
-    User.findOne({ email: payload.email })
-      .then((user) => {
-        if (!user) {
-          next(new UnAuthorizedError('Необходима авторизация'));
-        }
+    // User.findOne({ _id: payload._id })
+    //   .then((user) => {
+    //     console.log('яууу');
+    //     if (!user) {
+    //       next(new UnAuthorizedError('Необходима авторизация'));
+    //     }
 
         req.user = payload;
         next();
-      });
+      // });
   } catch (err) {
     next(new UnAuthorizedError('Необходима авторизация'));
   }
