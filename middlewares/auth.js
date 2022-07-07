@@ -4,13 +4,7 @@ const UnAuthorizedError = require('../errors/UnauthorizedError');
 
 const SECRET_KEY = 'secret';
 
-// const throwUnauthorizedError = () => {
-//   const error = new Error('Авторизуйтесь для доступа');
-//   error.statusCode = 401;
-//   throw error;
-// };
-
-const isAuthorized = (req, res, next) => {
+module.exports = (req, res, next) => {
   const auth = req.headers.authorization;
   if (!auth) {
     next(new UnAuthorizedError('Необходима авторизация'));
@@ -34,5 +28,3 @@ const isAuthorized = (req, res, next) => {
     next(new UnAuthorizedError('Необходима авторизация'));
   }
 };
-
-module.exports = { isAuthorized };

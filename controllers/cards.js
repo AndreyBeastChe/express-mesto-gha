@@ -3,16 +3,18 @@ const NotFoundError = require('../errors/NotFoundError');
 const ForbiddenError = require('../errors/ForbiddenError');
 const BadRequestError = require('../errors/BadRequestError');
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
+  console.log(req.user);
   const owner = req.user._id;
+  console.log(owner);
   Card.create({ name, link, owner })
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Ошибка валидации' });
+        next(new BadRequestError('Переданы некорректные данные'));
       }
-      return res.status(500).send({ message: 'Ошибка' });
+      next(err);
     });
 };
 

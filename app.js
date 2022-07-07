@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { celebrate, Joi, errors } = require('celebrate');
 const { login, createUser } = require('./controllers/users');
-const isAuthorized = require('./middlewares/auth');
+const auth = require('./middlewares/auth');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 
@@ -12,6 +12,8 @@ const reg = /http(s?):\/\/(www\.)?[0-9a-zA-Z-]+\.[a-zA-Z]+([0-9a-zA-Z-._~:?#[\]@
 // Слушаем 3000 порт
 const { PORT = 3000 } = process.env;
 const app = express();
+
+console.log(auth)
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -42,8 +44,8 @@ const validateLogin = celebrate({
 app.post('/signin', validateLogin, login);
 app.post('/signup', validate, createUser);
 
-app.use('/users', usersRouter);
-app.use('/cards', cardsRouter);
+app.use('/users', auth, usersRouter);
+app.use('/cards', auth, cardsRouter);
 
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Несуществующий адрес' });

@@ -41,6 +41,19 @@ module.exports.createUser = (req, res, next) => {
     });
 };
 
+module.exports.getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        next(new NotFoundError('Нет пользователя с таким id'));
+      }
+      res.status(200).send({ data: user });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
 module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((user) => res.status(200).send(user))
@@ -87,7 +100,9 @@ module.exports.updateAvatar = (req, res, next) => {
     { new: true, runValidators: true },
   )
     .then((user) => res.send({ data: user }))
-    .catch((err) => next(err));
+    .catch((err) => {
+      next(err);
+    });
 };
 
 module.exports.login = (req, res, next) => {
@@ -110,15 +125,4 @@ module.exports.login = (req, res, next) => {
         token: jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' }),
       });
     });
-};
-
-module.exports.getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      if (!user) {
-        next(new NotFoundError('Нет пользователя с таким id'));
-      }
-      res.status(200).send({ data: user });
-    })
-    .catch((err) => next(err));
 };
