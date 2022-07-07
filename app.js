@@ -7,8 +7,7 @@ const auth = require('./middlewares/auth');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 
-const reg = /http(s?):\/\/(www\.)?[0-9a-zA-Z-]+\.[a-zA-Z]+([0-9a-zA-Z-._~:?#[\]@!$&'()*+,;=]+)/;
-
+const { reg } = require('./constants');
 // Слушаем 3000 порт
 const { PORT = 3000 } = process.env;
 const app = express();
