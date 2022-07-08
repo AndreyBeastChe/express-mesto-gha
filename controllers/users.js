@@ -115,18 +115,16 @@ module.exports.login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        next(new UnauthorizedError('Неправильный емейл или пароль'));
-        return;
+        throw next(new UnauthorizedError('Неправильный емейл или пароль'));
       }
-      Promise.all([
+      return Promise.all([
         user,
         bcrypt.compare(password, user.password),
       ]);
     })
     .then(([user, isPasswordCorrect]) => {
       if (!isPasswordCorrect) {
-        next(new UnauthorizedError('Неправильный емейл или пароль'));
-        return;
+        throw next(new UnauthorizedError('Неправильный емейл или пароль'));
       }
       res.send({
         token: jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' }),
