@@ -37,7 +37,7 @@ module.exports.deleteCardById = (req, res, next) => {
       }
       card.remove();
     })
-    .then((card) => res.status(200).send(card))
+    .then(() => res.status(200).send({ message: 'Карточка успешно удалена' }))
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Ошибка данных'));
