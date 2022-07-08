@@ -26,7 +26,7 @@ const validateId = celebrate({
 
 router.post('', validateCard, createCard);
 
-router.get('', validateCard, getCards);
+router.get('', getCards);
 router.delete('/:cardId', validateId, deleteCardById);
 
 router.put('/:cardId/likes', validateId, likeCard);

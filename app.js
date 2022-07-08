@@ -6,6 +6,7 @@ const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
+const NotFoundError = require('./errors/NotFoundError');
 
 const { reg } = require('./constants');
 // Слушаем 3000 порт
@@ -44,8 +45,8 @@ app.post('/signup', validate, createUser);
 app.use('/users', auth, usersRouter);
 app.use('/cards', auth, cardsRouter);
 
-app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Несуществующий адрес' });
+app.use('*', (req, res, next) => {
+  next(new NotFoundError('Несуществующий адрес'));
 });
 
 app.use(errors());

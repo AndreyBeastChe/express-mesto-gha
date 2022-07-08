@@ -7,11 +7,12 @@ module.exports = (req, res, next) => {
   const auth = req.headers.authorization;
   if (!auth) {
     next(new UnAuthorizedError('Необходима авторизация'));
+    return;
   }
 
   const token = auth.replace('Bearer ', '');
   try {
-    const payload = jwt.verify(token, SECRET_KEY, { expiresIn: '7d' });
+    const payload = jwt.verify(token, SECRET_KEY);
 
     req.user = payload;
     next();

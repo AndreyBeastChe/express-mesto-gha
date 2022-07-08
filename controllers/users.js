@@ -32,6 +32,7 @@ module.exports.createUser = (req, res, next) => {
     .catch((err) => {
       if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
         next(new ConflictError('Такой пользователь уже существует'));
+        return;
       }
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
@@ -46,6 +47,7 @@ module.exports.getCurrentUser = (req, res, next) => {
     .then((user) => {
       if (!user) {
         next(new NotFoundError('Нет пользователя с таким id'));
+        return;
       }
       res.status(200).send({ data: user });
     })
@@ -65,6 +67,7 @@ module.exports.getUsersById = (req, res, next) => {
     .then((user) => {
       if (!user) {
         next(new NotFoundError('Нет пользователя с таким id'));
+        return;
       }
       res.send({ data: user });
     })
@@ -113,8 +116,9 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       if (!user) {
         next(new UnauthorizedError('Неправильный емейл или пароль'));
+        return;
       }
-      return Promise.all([
+      Promise.all([
         user,
         bcrypt.compare(password, user.password),
       ]);
@@ -122,6 +126,7 @@ module.exports.login = (req, res, next) => {
     .then(([user, isPasswordCorrect]) => {
       if (!isPasswordCorrect) {
         next(new UnauthorizedError('Неправильный емейл или пароль'));
+        return;
       }
       res.send({
         token: jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' }),

@@ -7,10 +7,11 @@ module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
-    .then((card) => res.status(200).send(card))
+    .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
+        return;
       }
       next(err);
     });
@@ -28,12 +29,18 @@ module.exports.deleteCardById = (req, res, next) => {
     .then((card) => {
       if (card.owner.toString() !== req.user._id) {
         next(new ForbiddenError('Можно удалять только свою карточку данныхе'));
+        return;
       }
-      res.status(200).send(card);
+      if (!card) {
+        next(new NotFoundError('Карточка не найдена'));
+        return;
+      }
+      card.remove();
     })
+    .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Ошибка данныхе'));
+        next(new BadRequestError('Ошибка данных'));
       } else {
         next(err);
       }
@@ -50,7 +57,7 @@ module.exports.likeCard = (req, res, next) => {
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Ошибка данныхе'));
+        next(new BadRequestError('Ошибка данных'));
       } else {
         next(err);
       }
@@ -67,7 +74,7 @@ module.exports.dislikeCard = (req, res, next) => {
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Ошибка данныхе'));
+        next(new BadRequestError('Ошибка данных'));
       } else {
         next(err);
       }

@@ -19,13 +19,13 @@ const validateUpdate = celebrate({
 
 const validateAvatar = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().pattern(reg),
+    avatar: Joi.string().required().pattern(reg),
   }),
 });
 
 const validateId = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().length(24),
+    userId: Joi.string().required().length(24),
   }),
 });
 
