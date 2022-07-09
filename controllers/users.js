@@ -110,12 +110,12 @@ module.exports.updateAvatar = (req, res, next) => {
     });
 };
 
-module.exports.login = (req, res, next) => {
+module.exports.login = (req, res) => {
   const { email, password } = req.body;
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw next(new UnauthorizedError('Неправильный емейл или пароль'));
+        throw new UnauthorizedError('Неправильный емейл или пароль');
       }
       return Promise.all([
         user,
@@ -124,7 +124,7 @@ module.exports.login = (req, res, next) => {
     })
     .then(([user, isPasswordCorrect]) => {
       if (!isPasswordCorrect) {
-        throw next(new UnauthorizedError('Неправильный емейл или пароль'));
+        throw new UnauthorizedError('Неправильный емейл или пароль');
       }
       res.send({
         token: jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' }),

@@ -24,20 +24,19 @@ module.exports.getCards = (req, res, next) => {
 };
 
 module.exports.deleteCardById = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .orFail(new NotFoundError('Запрашиаемая карточка не найдена'))
+  Card.findById(req.params.cardId)
     .then((card) => {
-      if (card.owner.toString() !== req.user._id) {
-        next(new ForbiddenError('Можно удалять только свою карточку данныхе'));
-        return;
-      }
       if (!card) {
         next(new NotFoundError('Карточка не найдена'));
         return;
       }
+      if (card.owner.toString() !== req.user._id) {
+        next(new ForbiddenError('Можно удалять только свою карточку данныхе'));
+        return;
+      }
       card.remove();
+      res.status(200).send({ message: 'Карточка успешно удалена' });
     })
-    .then(() => res.status(200).send({ message: 'Карточка успешно удалена' }))
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Ошибка данных'));
