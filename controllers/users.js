@@ -110,13 +110,15 @@ module.exports.updateAvatar = (req, res, next) => {
     });
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new UnauthorizedError('Неправильный емейл или пароль');
+        next(new UnauthorizedError('Неправильный емейл или пароль'));
+        return;
       }
+      // eslint-disable-next-line consistent-return
       return Promise.all([
         user,
         bcrypt.compare(password, user.password),
@@ -124,7 +126,8 @@ module.exports.login = (req, res) => {
     })
     .then(([user, isPasswordCorrect]) => {
       if (!isPasswordCorrect) {
-        throw new UnauthorizedError('Неправильный емейл или пароль');
+        next(new UnauthorizedError('Неправильный емейл или пароль'));
+        return;
       }
       res.send({
         token: jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' }),
