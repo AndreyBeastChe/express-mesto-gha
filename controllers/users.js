@@ -110,44 +110,47 @@ module.exports.updateAvatar = (req, res, next) => {
     });
 };
 
-// module.exports.login = (req, res, next) => {
-//   const { email, password } = req.body;
-//   User.findOne({ email }).select('+password')
-//     .then((user) => {
-//       if (!user) {
-//         next(new UnauthorizedError('Неправильный емейл или пароль'));
-//         return;
-//       }
-//       // eslint-disable-next-line consistent-return
-//       return Promise.all([
-//         user,
-//         bcrypt.compare(password, user.password),
-//       ]);
-//     })
-//     .then(([user, isPasswordCorrect]) => {
-//       if (!isPasswordCorrect) {
-//         next(new UnauthorizedError('Неправильный емейл или пароль'));
-//         return;
-//       }
-//       res.send({
-//         token: jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' }),
-//       });
-//     });
-// };
-
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  User.findUserByCredentials(email, password)
+  User.findOne({ email }).select('+password')
     .then((user) => {
-      res.send({
-        token: jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' }),
-      });
-    })
-    .catch((err) => {
-      if (err.statusCode === 401) {
+      if (!user) {
         next(new UnauthorizedError('Неправильный емейл или пароль'));
         return;
       }
-      next(err);
+      // eslint-disable-next-line consistent-return
+      return Promise.all([
+        user,
+        bcrypt.compare(password, user.password),
+      ]);
+    })
+    .then(([user, isPasswordCorrect]) => {
+      if (!isPasswordCorrect) {
+        next(new UnauthorizedError('Неправильный емейл или пароль'));
+        return;
+      }
+      res.send({
+        token: jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' }),
+      });
     });
 };
+
+// module.exports.login = (req, res, next) => {
+//   const { email, password } = req.body;
+//   console.log(req.body);
+//   User.findUserByCredentials({ email }).select('+password')
+//     .then((user) => {
+//       console.log(user);
+//       res.send({
+//         token: jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' }),
+//       });
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//       if (err.statusCode === 401) {
+//         next(new UnauthorizedError('Неправильный емейл или пароль'));
+//         return;
+//       }
+//       next(err);
+//     });
+// };
