@@ -134,23 +134,3 @@ module.exports.login = (req, res, next) => {
       });
     });
 };
-
-// module.exports.login = (req, res, next) => {
-//   const { email, password } = req.body;
-//   console.log(req.body);
-//   User.findUserByCredentials({ email }).select('+password')
-//     .then((user) => {
-//       console.log(user);
-//       res.send({
-//         token: jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' }),
-//       });
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//       if (err.statusCode === 401) {
-//         next(new UnauthorizedError('Неправильный емейл или пароль'));
-//         return;
-//       }
-//       next(err);
-//     });
-// };
