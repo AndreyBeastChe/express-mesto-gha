@@ -58,7 +58,7 @@ app.use(errors());
 // Массив доменов, с которых разрешены кросс-доменные запросы
 const allowedCors = [
   'https://vse-na-meste.nomoredomains.xyz',
-  'http://vse-na-meste.nomoredomains.xyz',
+  'http://api.vse-na-meste.nomoredomains.xyz',
   'localhost:3000'
 ];
 
