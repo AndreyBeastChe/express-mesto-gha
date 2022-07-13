@@ -1,0 +1,22 @@
+.login__input {
+  width: 358px;
+  border: none;
+  box-sizing: border-box;
+  border-bottom: 1px solid rgba(204, 204, 204, 0.2);
+  padding-bottom: 10px;
+  color: #fff;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 17px;
+  margin-bottom: 30px;
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  background-color: transparent;
+}
+
+.login__input:last-of-type {
+  margin-bottom: 0;
+}

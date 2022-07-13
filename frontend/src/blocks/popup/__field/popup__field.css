@@ -1,0 +1,16 @@
+.popup__field {
+  display: flex;
+  flex-direction: column;
+  width: 358px;
+  margin-bottom: 13px;
+}
+
+.popup__field:last-of-type {
+  margin-bottom: 48px;
+}
+
+@media (max-width: 767px) {
+  .popup__field {
+    width: 238px;
+  }
+}

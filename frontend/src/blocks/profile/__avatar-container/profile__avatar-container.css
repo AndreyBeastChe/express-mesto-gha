@@ -1,0 +1,20 @@
+.profile__avatar-container {
+  width: 127.5px;
+  height: 127.5px;
+  margin: 36.25px 18px 47.25px 0;
+  background-image: url(../../../images/pen.svg);
+  background-repeat: no-repeat;
+  background-position: 50%;
+  z-index: 0;
+  cursor: pointer;
+}
+
+.profile__avatar-container:hover {
+  z-index: 2;
+}
+
+@media (max-width: 767px) {
+  .profile__avatar-container {
+    margin: 38.25px auto 22.25px;
+  }
+}
